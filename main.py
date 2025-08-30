@@ -105,12 +105,12 @@ async def view_command(interaction: discord.Interaction, name: str):
     name = name.strip()
     builds = get_builds_by_name(name)
     if not builds:
-        await interaction.response.send_message(f"❌ '{name}' 영웅에 등록된 빌드가 없습니다.")
+        await interaction.response.send_message(f"❌ '{name}' 영웅에 등록된 빌드가 없습니다.", ephemeral=True)
     else:
         response = f"📖 '{name}' 등록된 빌드 목록:\n"
         for i, (code, desc, username, created_at) in enumerate(builds, start=1):
             response += f"\n{i}. 코드: `{code}` | 설명: {desc} | 등록자: {username} | 등록일: {created_at}"
-        await interaction.response.send_message(response)
+        await interaction.response.send_message(response, ephemeral=True)
 
 @bot.tree.command(name="추가", description=ADD_COMMAND_DESCRIPTION)
 @app_commands.describe(name="영웅 이름", code="빌드 코드", description="간단한 설명")
@@ -121,27 +121,29 @@ async def add_command(interaction: discord.Interaction, name: str, code: str, de
     if not(name in OW2_CHARACTOR_NAMES and len(code) == 5):
         await interaction.response.send_message(
             f"⚠️ 형식 오류 발생: 정확한 영웅 이름과 빌드 코드 형식(영문 숫자 5자)을 입력하세요.\n"
-            f"{OW2_CHARACTOR_NAMES}"
+            f"{OW2_CHARACTOR_NAMES}",
+            ephemeral=True
         )
         return
     success, err = add_build(name, code, description, str(interaction.user.id), interaction.user.name)
     if success:
         await interaction.response.send_message(
             f"📌 영웅 '{name}' 에 빌드가 추가되었습니다!\n"
-            f"코드: `{code}` | 설명: {description} | 등록자: {interaction.user.name}"
+            f"코드: `{code}` | 설명: {description} | 등록자: {interaction.user.name}",
+            ephemeral=False
         )
     else:
         if "UNIQUE constraint failed" in err:
-            await interaction.response.send_message(f"⚠️ 코드 `{code}` 는 이미 등록되어 있습니다.")
+            await interaction.response.send_message(f"⚠️ 코드 `{code}` 는 이미 등록되어 있습니다.", ephemeral=True)
         else:
-            await interaction.response.send_message(f"⚠️ 등록 중 오류 발생: {err}")
+            await interaction.response.send_message(f"⚠️ 등록 중 오류 발생: {err}", ephemeral=True)
 
 @bot.tree.command(name="삭제", description="등록한 빌드를 삭제합니다.")
 @app_commands.describe(code="빌드 코드")
 async def delete_command(interaction: discord.Interaction, code: str):
     code = code.strip().upper()
     success, message = delete_build_by_code(code, str(interaction.user.id))
-    await interaction.response.send_message(message)
+    await interaction.response.send_message(message, ephemeral=False)
 
 # ================================
 # 실행
