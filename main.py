@@ -130,7 +130,7 @@ async def add_command(interaction: discord.Interaction, name: str, code: str, de
         await interaction.response.send_message(
             f"📌 영웅 '{name}' 에 빌드가 추가되었습니다!\n"
             f"코드: `{code}` | 설명: {description} | 등록자: {interaction.user.name}",
-            ephemeral=False
+            ephemeral=True
         )
     else:
         if "UNIQUE constraint failed" in err:
@@ -143,7 +143,7 @@ async def add_command(interaction: discord.Interaction, name: str, code: str, de
 async def delete_command(interaction: discord.Interaction, code: str):
     code = code.strip().upper()
     success, message = delete_build_by_code(code, str(interaction.user.id))
-    await interaction.response.send_message(message, ephemeral=False)
+    await interaction.response.send_message(message, ephemeral=True)
 
 # ================================
 # 실행
